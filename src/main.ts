@@ -13,6 +13,7 @@ async function loadOpenDay() {
   return data
 }
 
+// Function to load the Locations data, should be merged with the function above.
 async function loadLocations() {
   const base = import.meta.env.BASE_URL || '/';
   const res = await fetch(`${base}api/Locations.json`)
