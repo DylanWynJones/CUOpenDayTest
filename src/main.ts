@@ -13,6 +13,13 @@ async function loadOpenDay() {
   return data
 }
 
+async function loadLocations() {
+  const base = import.meta.env.BASE_URL || '/';
+  const res = await fetch(`${base}api/Locations.json`)
+  const locationData = await res.json()
+  return locationData
+}
+
 function renderOpenDay(data: any) {
   const app = document.querySelector<HTMLDivElement>('#app')!
   if (!data.topics) {
@@ -35,23 +42,28 @@ function renderOpenDay(data: any) {
       </div>
     </div>
     <div class="min-h-screen bg-cardiff-white font-sans px-2 py-6">
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-        <a href="https://www.cardiff.ac.uk/" target="_blank" rel="noopener noreferrer">
-          <img src="${cuLogo}" alt="Cardiff University Logo" class="h-16 w-auto" />
-        </a>
-      </div>
-      <h1 class="text-3xl sm:text-5xl font-bold text-cardiff-red mb-8 text-center">Cardiff University Open Day</h1>
-      <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="relative gap-4 h-128">
+          <div class="absolute top-6 left-6">
+            <a href="https://www.cardiff.ac.uk/" target="_blank" rel="noopener noreferrer">
+              <img src="${cuLogo}" alt="Cardiff University Logo" class="h-16 w-auto" />
+            </a>
+          </div>
+          <img src="${data.cover_image}" alt="" class="h-96 w-full object-cover object-bottom" />
+          <div class="bg-cardiff-red p-8">
+            <h1 class="text-3xl sm:text-5xl font-bold text-left">Cardiff University Open Day</h1>
+          </div>
+        </div>
+      <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-2">
         ${data.topics.map((topic: any) => topic && topic.name ? `
-          <div class="bg-cardiff-grey rounded-lg shadow p-6 flex flex-col">
-            <img src="${topic.cover_image || cuLogo}" alt="${topic.name}" class="h-32 w-full object-cover rounded mb-4" />
+          <div class="bg-gray-100 rounded-lg border shadow flex flex-col">
+            <img src="${topic.cover_image || cuLogo}" alt="${topic.name}" class="h-32 w-full object-cover rounded-t mb-4" />
             <h2 class="text-xl font-bold text-cardiff-red mb-2">${topic.name}</h2>
-            <p class="text-cardiff-dark mb-2">${topic.description || ''}</p>
+            <p class="text-cardiff-dark mb-2 text-left px-6">${topic.description || ''}</p>
             ${topic.programs && topic.programs.length ? `
-              <div class="mt-2">
-                <h3 class="font-semibold text-cardiff-dark mb-1">Events:</h3>
-                <ul class="list-disc list-inside text-sm">
-                  ${topic.programs.map((prog: any) => prog && prog.title ? `<li><span class="font-semibold">${prog.title}</span>${prog.start_time ? ` <span class='text-xs text-cardiff-dark'>(${new Date(prog.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${prog.end_time ? ' - ' + new Date(prog.end_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''})</span>` : ''}${prog.room ? `, <span class='text-xs'>${prog.room}</span>` : ''}</li>` : '').join('')}
+              <div class="mt-2 text-left px-2">
+                <h3 class="font-semibold text-cardiff-dark mb-1 px-4">Events:</h3>
+                <ul class=" text-sm text-cardiff-dark">
+                  ${topic.programs.map((prog: any) => prog && prog.title ? `<li class="py-2 px-4 odd:bg-gray-50"><span class="font-semibold">${prog.title}</span><br />${prog.start_time ? ` <span class='text-xs text-cardiff-dark'>Time: ${new Date(prog.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${prog.end_time ? ' - ' + new Date(prog.end_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>` : ''}${prog.room ? `<br /> <span class='text-xs'>Location: ${prog.room}</span>` : ''}</li>` : '').join('')}
                 </ul>
               </div>
             ` : ''}
@@ -62,4 +74,5 @@ function renderOpenDay(data: any) {
   `
 }
 
+loadLocations()
 loadOpenDay().then(renderOpenDay)
